@@ -139,12 +139,14 @@ def get_predictions(
 
         # Select the answers above a classification threshold.
         answer_coordinates = []
+        answer_probablities = []
         for col in range(max_width):
             for row in range(max_height):
                 cell_prob = cell_coords_to_prob.get((col, row), None)
                 if cell_prob is not None:
                     if cell_prob > cell_classification_threshold:
                         answer_coordinates.append(str((row, col)))
+                        answer_probablities.append(cell_prob)
 
         try:
             example_id, annotator, position = text_utils.parse_question_id(
@@ -161,11 +163,12 @@ def get_predictions(
             "position": position,
             "answer_coordinates": str(answer_coordinates),
             "answer": str(answer_indexes),
+            "answer_probablities": answer_probablities if len(answer_probablities) else [0.0]
         }
         if do_model_aggregation:
             prediction_to_write["gold_aggr"] = str(
-                prediction["gold_aggr"][0][0])
-            prediction_to_write["pred_aggr"] = str(prediction["pred_aggr"][0])
+                prediction["gold_aggr"][0][0].numpy())
+            prediction_to_write["pred_aggr"] = str(prediction["pred_aggr"][0][0].numpy())
         if do_model_classification:
             prediction_to_write["gold_cls"] = str(
                 prediction["gold_cls"][0])

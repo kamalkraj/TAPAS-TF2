@@ -325,5 +325,5 @@ class Model(object):
             answers = ', '.join([table[row + 1][col]
                                     for row, col in coordinates])
             position = int(row['position'])
-            results.append({"query": queries[position], "answer": answers})
+            results.append({"query": queries[position], "answer": answers, "answer_probablities":row["answer_probablities"]})
         return results
