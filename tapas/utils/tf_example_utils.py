@@ -623,6 +623,8 @@ class ToTensorflowExampleBase:
             numeric_values_scale)
 
     def _pad_to_seq_length(self, inputs):
+        while len(inputs) > self._max_seq_length:
+            inputs.pop()
         while len(inputs) < self._max_seq_length:
             inputs.append(0)
 

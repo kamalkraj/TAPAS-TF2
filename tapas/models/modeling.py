@@ -408,7 +408,7 @@ class EmbeddingPostprocessor(tf.keras.layers.Layer):
                 first_position = segmented_tensor.gather(first_position_per_segment,
                                                          full_index)
                 position_embeddings = tf.nn.embedding_lookup(self.position_embeddings,
-                                                             position - first_position)
+                                                             tf.math.minimum(self.max_position_embeddings - 1, position - first_position))
 
             output += position_embeddings
 
