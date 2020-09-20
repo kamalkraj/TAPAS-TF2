@@ -134,3 +134,4 @@ tapas_*/
 temp/*
 *.tfrecord
 *.zip
+weight.ipynb

@@ -166,12 +166,8 @@ def get_predictions(
             "answer_probablities": answer_probablities if len(answer_probablities) else [0.0]
         }
         if do_model_aggregation:
-            prediction_to_write["gold_aggr"] = str(
-                prediction["gold_aggr"][0][0].numpy())
-            prediction_to_write["pred_aggr"] = str(prediction["pred_aggr"][0][0].numpy())
+            prediction_to_write["pred_aggr"] = str(prediction["pred_aggr"][0].numpy())
         if do_model_classification:
-            prediction_to_write["gold_cls"] = str(
-                prediction["gold_cls"][0])
             prediction_to_write["pred_cls"] = str(prediction["pred_cls"])
             prediction_to_write["logits_cls"] = str(
                 prediction["logits_cls"])

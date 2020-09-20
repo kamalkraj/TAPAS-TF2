@@ -64,6 +64,18 @@ TASKS = {"SQA": SQA, "WTQ": WTQ, "WIKISQL": WIKISQL}
 os.makedirs("temp", exist_ok=True)
 
 
+def aggregation_to_string(index):
+    if index == 0:
+        return "NONE"
+    if index == 1:
+        return "SUM"
+    if index == 2:
+        return "AVERAGE"
+    if index == 3:
+        return "SUM"
+    raise ValueError(f"Unknown index: {index}")
+
+
 def get_config(task: Text, bert_config: DefaultDict, init_checkpoint: Text):
     task_params = TASKS[task.upper()]
     tapas_config = TapasClassifierConfig(bert_config=bert_config,
@@ -91,10 +103,11 @@ def get_config(task: Text, bert_config: DefaultDict, init_checkpoint: Text):
     return tapas_config
 
 
-def get_model(tapas_config: TapasClassifierConfig, max_seq_length=_MAX_SEQ_LENGTH):
+def get_model(tapas_config: TapasClassifierConfig, max_seq_length=_MAX_SEQ_LENGTH, load_weights=True):
     model = TAPAS(bert_config=tapas_config.bert_config,
                   tapas_classifier_config=tapas_config, max_seq_length=max_seq_length)
-    model.load_weights(os.path.join(tapas_config.init_checkpoint, "model"))
+    if load_weights:
+        model.load_weights(os.path.join(tapas_config.init_checkpoint, "model"))
     return model
 
 
@@ -116,8 +129,6 @@ def get_outputs(model: TAPAS, features: dict):
         predictions["question_id"] = features["question_id"]
     if model.do_model_aggregation:
         predictions.update({
-            "gold_aggr":
-                features["aggregation_function_id"],
             "pred_aggr":
                 tf.argmax(
                     logits_aggregation,
@@ -127,8 +138,6 @@ def get_outputs(model: TAPAS, features: dict):
         })
     if model.do_model_classification:
         predictions.update({
-            "gold_cls":
-                features["classification_class_index"],
             "pred_cls":
                 tf.argmax(
                     logits_cls,
@@ -323,7 +332,13 @@ class Model(object):
                 row["answer_coordinates"])
             all_coordinates.append(coordinates)
             answers = ', '.join([table[row + 1][col]
-                                    for row, col in coordinates])
+                                 for row, col in coordinates])
             position = int(row['position'])
-            results.append({"query": queries[position], "answer": answers, "answer_probablities":row["answer_probablities"]})
+            answer_text = str(answers)
+            if self.task in ["WTQ", "WIKISQL"]:
+                aggregation = aggregation_to_string(int(row["pred_aggr"]))
+                if aggregation != "NONE":
+                    answer_text = f"{aggregation} of {answer_text}"
+            results.append({"query": queries[position], "answer": answer_text,
+                            "answer_probablities": row["answer_probablities"]})
         return results
