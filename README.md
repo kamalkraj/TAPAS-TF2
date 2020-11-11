@@ -6,6 +6,14 @@
 
 Download [tapas_sqa_masklm_base_reset_tf2](https://drive.google.com/file/d/1uTVeUHEBXixjFe3IEV1Eb8gVue_VVBUc/view?usp=sharing)
 
+### Deploy and inference on model using Gradio
+```bash
+python app.py --model_path=tapas_sqa_masklm_base_reset_tf2 --task=SQA
+```
+![gradio](screenshot.png)
+
+
+
 ## Convert weights
 ```bash
 python converter.py --model_path=tapas_wtq_wikisql_sqa_masklm_medium_reset --do_reset --save_path=tapas_wtq_wikisql_sqa_masklm_medium_reset_tf2 --task=WTQ
@@ -20,3 +28,4 @@ python converter.py --model_path=tapas_wtq_wikisql_sqa_masklm_medium_reset --do_
   --task: <SQA|WTQ|WIKISQL>: task for converison
     (default: 'SQA')
 ```
+
